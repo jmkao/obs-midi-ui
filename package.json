@@ -10,13 +10,13 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.9.8",
     "core-js": "^3.6.5",
     "obs-websocket-js": "^4.0.1",
-    "quasar": "^1.0.0"
+    "quasar": "^1.14.1"
   },
   "devDependencies": {
-    "@quasar/app": "^2.0.0",
+    "@quasar/app": "^2.1.1",
     "babel-eslint": "^10.0.1",
     "devtron": "^1.4.0",
     "electron": "^9.2.1",
