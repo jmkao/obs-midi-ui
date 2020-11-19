@@ -1,7 +1,5 @@
+import path from 'path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
-
-const OBSWebSocket = require('obs-websocket-js')
-const obs = new OBSWebSocket()
 
 try {
   if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -31,10 +29,10 @@ function createWindow () {
       // Change from /quasar.conf.js > electron > nodeIntegration;
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
       nodeIntegration: process.env.QUASAR_NODE_INTEGRATION,
-      nodeIntegrationInWorker: process.env.QUASAR_NODE_INTEGRATION
+      nodeIntegrationInWorker: process.env.QUASAR_NODE_INTEGRATION,
 
       // More info: /quasar-cli/developing-electron-apps/electron-preload-script
-      // preload: path.resolve(__dirname, 'electron-preload.js')
+      preload: path.resolve(__dirname, 'electron-preload.js')
     }
   })
 
@@ -58,17 +56,3 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-obs.on('ConnectionOpened', () => {
-  console.log('OBS Websocket Connection Opened')
-})
-
-obs.on('MediaStarted', data => {
-  console.log('Media Started: ', data)
-})
-
-obs.on('MediaEnded', data => {
-  console.log('Media Ended: ', data)
-})
-
-obs.connect()

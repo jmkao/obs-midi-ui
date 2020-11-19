@@ -1,9 +1,11 @@
 <template>
-  <q-page class="flex flex-center">
-    <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-full.svg"
-    >
+  <q-page class="flex flex-start">
+    <div class="q-pa-sm doc-container">
+      <div class="row justify-start">
+        <div class="col items-start">
+        </div>
+      </div>
+    </div>
   </q-page>
 </template>
 
