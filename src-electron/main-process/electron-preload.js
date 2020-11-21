@@ -1,6 +1,6 @@
 const OBSWebSocket = require('obs-websocket-js')
 
-window.obs = new OBSWebSocket()
+window.OBSWebSocket = OBSWebSocket
 
 // const obs = new OBSWebSocket()
 
