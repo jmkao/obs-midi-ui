@@ -139,7 +139,12 @@ export default {
       if (this.obsIsConnected) {
         this.disconnectOBS()
       } else {
-        this.connectOBS()
+        try {
+          this.connectOBS()
+        } catch (err) {
+          console.log(err)
+          this.obsConnectionPending = false
+        }
       }
     },
     connectOBS () {
