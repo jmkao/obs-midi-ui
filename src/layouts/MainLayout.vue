@@ -156,6 +156,7 @@ export default {
     },
     disconnectOBS () {
       this.obs.disconnect()
+      this.obsConnectionPending = false
     },
     onOBSConnected () {
       this.obsBtnLabel = 'Disconnect'
@@ -214,6 +215,7 @@ export default {
         this.obsAddressLabel = err.description
       }
 
+      this.obsConnectionPending = false
       console.error('OBS Websocket Error: ', err)
     },
     findSceneIndex (sceneName) {
