@@ -179,6 +179,9 @@ module.exports = function (/* ctx */) {
 
         // Windows only
         // win32metadata: { ... }
+
+        platform: ['darwin', 'linux', 'win32'],
+        arch: ['x64', 'arm64']
       },
 
       builder: {

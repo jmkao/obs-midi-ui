@@ -109,6 +109,9 @@ export default {
     }
   },
   created: function () {
+    if (typeof window.OBSWebSocket === 'undefined') {
+      window.OBSWebSocket = require('obs-websocket-js')
+    }
     this.$root.$on('transition', this.transition)
     this.$root.$on('timetable', this.timetable)
   },
