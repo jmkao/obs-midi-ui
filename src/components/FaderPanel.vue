@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-sm full-width">
     <div class="row">
-        <Fader v-for="(n, i) in 4" :key="i" :index="i" :obs="obs" :sources="sources" />
+        <Fader v-for="(n, i) in 4" :key="i" :index="i" :obs="obs" :sources="sources" ref="faders"/>
     </div>
   </div>
 </template>
@@ -28,7 +28,6 @@ export default {
   },
   data () {
     return {
-      faders: [0, 0, 0, 0]
     }
   },
   created: function () {
@@ -41,7 +40,12 @@ export default {
     }
   },
   methods: {
-    switchToScene () {
+    updateFaderValue (index, value) {
+      if (index < 0 || index >= this.$refs.faders.length) {
+        return
+      }
+      // console.log(`updateFaderValue ${index} to ${value}`)
+      this.$refs.faders[index].onMidiEvent({ value })
     }
   }
 }

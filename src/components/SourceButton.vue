@@ -28,7 +28,8 @@ export default {
   name: 'SourceButton',
   props: {
     obs: Object,
-    source: Object
+    source: Object,
+    index: Number
   },
   data () {
     return {
@@ -41,15 +42,21 @@ export default {
     // this.$set(this.status, 'previewIndex', -1)
     this.loadSourceSettings(this.source)
     this.loadMediaState()
+    this.$root.$on('source' + this.index, this.onClick)
+  },
+  destroyed: function () {
+    this.$root.$off('source' + this.index)
   },
   computed: {
     color: function () {
+      let color = 'white'
       if (this.mediaState === 'playing') {
-        return 'red'
+        color = 'red'
       } else if (this.mediaState === 'paused') {
-        return 'yellow'
+        color = 'yellow'
       }
-      return 'white'
+      this.$root.$emit('midiout', { name: 'source', index: this.index, color })
+      return color
     },
     icon: function () {
       if (this.settings.is_local_file) {
@@ -95,14 +102,14 @@ export default {
           sourceName: this.source.name,
           sourceSettings: data.sourceSettings
         })
-        this.loadMediaState()
+        setTimeout(this.loadMediaState, 50)
       })()
     },
     loadSourceSettings (source) {
       (async () => {
         var data = await (this.obs.send('GetSourceSettings', { sourceName: this.source.name }))
         this.settings = data.sourceSettings
-        console.log(data.sourceSettings)
+        // console.log(data.sourceSettings)
       })()
     },
     loadMediaState () {

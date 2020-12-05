@@ -12,6 +12,9 @@
 .full-width {
   height: 80px;
 }
+.q-btn {
+  line-height: 1em;
+}
 </style>
 
 <script>
@@ -26,18 +29,22 @@ export default {
     // status: Object
   },
   created: function () {
-    // this.$set(this.status, 'currentIndex', -1)
-    // this.$set(this.status, 'previewIndex', -1)
+    this.$root.$on('scene' + this.index, this.switchToScene)
+  },
+  destroyed: function () {
+    this.$root.$off('scene' + this.index)
   },
   computed: {
     color: function () {
+      let color = 'white'
       if (this.isCurrent) {
-        return 'red'
+        color = 'red'
       } else if (this.isPreview) {
-        return 'yellow'
-      } else {
-        return 'white'
+        color = 'yellow'
       }
+      console.log(`scene${this.index} color changed to ${color}`)
+      this.$root.$emit('midiout', { name: 'scene', index: this.index, color })
+      return color
     }
   },
   methods: {

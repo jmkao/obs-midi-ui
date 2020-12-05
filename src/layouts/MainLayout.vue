@@ -2,40 +2,49 @@
   <q-layout class="base" view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-toolbar-title>
-          OBS Festival Control
-        </q-toolbar-title>
-        <div class='row'>
-          <div class='col'>
-
-        <q-btn :loading="obsConnectionPending" :color="obsBtnColor" @click="onConnectBtn()" :label="obsBtnLabel" />
+        <div class='row justify-between full-width'>
+          <div class="col-auto">
+            <q-toolbar-title>
+              OBS Festival Control
+            </q-toolbar-title>
+          </div>
+          <div class="col-grow">
+            <MidiHub :obsIsConnected="obsIsConnected" :scenes="scenes" :sources="sources" :updateFader="updateFader" />
           </div>
           <div class='col-auto'>
-        <q-input outlined bg-color="white" v-model="obsAddress" :label="obsAddressLabel" stack-label :dense="true" />
+            <div class='row no-wrap justify-end'>
+              <q-btn :loading="obsConnectionPending" :color="obsBtnColor" @click="onConnectBtn()" :label="obsBtnLabel" />
+              <q-input outlined bg-color="white" v-model="obsAddress" :label="obsAddressLabel" stack-label :dense="true" />
+            </div>
           </div>
         </div>
       </q-toolbar>
+      <div class="row flex-nowrap" style="background-color: black;">
+        <FaderPanel :obs="obs" :sources="sources" ref="faderPanel" />
+      </div>
+      <div class="row">
+        <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
+        <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
+        <q-btn color="red" class="col" label="Transition" @click="transition()" />
+        <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
+        <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
+        <q-btn color="red" class="col" label="Transition" @click="transition()" />
+        <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
+        <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
+      </div>
     </q-header>
 
     <q-page-container>
       <q-page>
-        <div class="q-pa-sm doc-container">
-          <div class="row flex-nowrap">
-            <FaderPanel :obs="obs" :sources="sources" />
-          </div>
-          <div class="row">
-            <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="obs.send('TriggerHotkeyByName', {hotkeyName: 'ROTATE_ccw'})" />
-            <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="obs.send('TriggerHotkeyByName', {hotkeyName: 'ROTATE_cw'})"/>
-            <q-btn color="red" class="col" label="Transition" @click="transition()" />
-          </div>
-          <div class="row">
-            <div class="col panel">
-              <ScenePanel :obs="obs" :scenes="scenes" :status="status" />
+        <div class="q-pa-sm">
+            <div class="row">
+              <div class="col panel">
+                <ScenePanel :obs="obs" :scenes="scenes" :status="status" />
+              </div>
+              <div class="col panel">
+                <SourcePanel :obs="obs" :sources="sources" />
+              </div>
             </div>
-            <div class="col panel">
-              <SourcePanel :obs="obs" :sources="sources" />
-            </div>
-          </div>
         </div>
       </q-page>
     </q-page-container>
@@ -59,16 +68,20 @@
   flex-wrap: 1;
   margin: 5px 5px;
 }
+.scrollable {
+  overflow: auto;
+}
 </style>
 
 <script>
 import ScenePanel from 'components/ScenePanel.vue'
 import SourcePanel from 'components/SourcePanel.vue'
 import FaderPanel from 'components/FaderPanel.vue'
+import MidiHub from 'components/MidiHub.vue'
 
 export default {
   name: 'MainLayout',
-  components: { ScenePanel, SourcePanel, FaderPanel },
+  components: { ScenePanel, SourcePanel, FaderPanel, MidiHub },
   data () {
     return {
       obsAddress: '',
@@ -83,10 +96,7 @@ export default {
       status: {
         previewIndex: -1,
         currentIndex: -1
-      },
-      midi: null,
-      midiInput: null,
-      midiOutput: null
+      }
     }
   },
   computed: {
@@ -94,71 +104,28 @@ export default {
       if (this.obsIsConnected) {
         return 'green'
       } else {
-        return 'red'
+        return 'grey'
       }
     }
   },
   created: function () {
-    this.midi = require('webmidi')
-    this.midi.enable(error => {
-      if (error) {
-        console.log('Webmidi Error:' + error)
-      }
-      console.log(this.midi.inputs)
-      console.log(this.midi.outputs)
-
-      this.midiInput = this.midi.getInputByName('useMulti')
-      this.midiInput.addListener('controlchange', 'all', data => {
-        const channel = data.channel
-        const control = data.controller.number
-        const value = data.value
-        if (!this.obsIsConnected) {
-          console.log(`Channel: ${channel} / Control: ${control} / Value: ${value}`)
-        }
-        // Controls: 73 75 72 91
-        if (channel === 1) {
-          if (control === 73) {
-            this.$root.$emit('midiFader0', {
-              midi: this.midi,
-              channel: channel,
-              control: control,
-              value: value
-            })
-          } else if (control === 75) {
-            this.$root.$emit('midiFader1', {
-              midi: this.midi,
-              channel: channel,
-              control: control,
-              value: value
-            })
-          } else if (control === 72) {
-            this.$root.$emit('midiFader2', {
-              midi: this.midi,
-              channel: channel,
-              control: control,
-              value: value
-            })
-          } else if (control === 91) {
-            this.$root.$emit('midiFader3', {
-              midi: this.midi,
-              channel: channel,
-              control: control,
-              value: value
-            })
-          }
-        }
-      })
-    })
+    this.$root.$on('transition', this.transition)
+    this.$root.$on('timetable', this.timetable)
   },
   destroyed: function () {
-    this.midi.disable()
     try {
       this.obs.disconnect()
     } catch (err) {
       // Do nothing
     }
+    this.$root.$off('transition')
+    this.$root.$off('timetable')
   },
   methods: {
+    updateFader (index, value) {
+      // console.log(this.$refs.faderPanel)
+      this.$refs.faderPanel.updateFaderValue(index, value)
+    },
     onConnectBtn () {
       if (this.obsConnectionPending) {
         return
@@ -251,7 +218,20 @@ export default {
       return -1
     },
     transition () {
+      if (!this.obsIsConnected) {
+        return
+      }
       this.obs.send('TransitionToProgram')
+    },
+    timetable (direction) {
+      if (!this.obsIsConnected) {
+        return
+      }
+      if (direction === 'retract') {
+        this.obs.send('TriggerHotkeyByName', { hotkeyName: 'ROTATE_ccw' })
+      } else {
+        this.obs.send('TriggerHotkeyByName', { hotkeyName: 'ROTATE_cw' })
+      }
     },
     initOBS () {
       try {
