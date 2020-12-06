@@ -149,7 +149,18 @@ export default {
     },
     connectOBS () {
       this.initOBS()
-      this.obs.connect({ address: this.obsAddress })
+
+      let secure = false
+      let parsedAddress = this.obsAddress
+      if (this.obsAddress.startsWith('wss://')) {
+        secure = true
+        parsedAddress = this.obsAddress.slice(6)
+      } else if (this.obsAddress.startsWith('ws://')) {
+        secure = false
+        parsedAddress = this.obsAddress.slice(5)
+      }
+
+      this.obs.connect({ address: parsedAddress, secure })
         .catch(err => {
           this.onOBSError(err)
         })
