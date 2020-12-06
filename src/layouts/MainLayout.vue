@@ -79,6 +79,8 @@ import SourcePanel from 'components/SourcePanel.vue'
 import FaderPanel from 'components/FaderPanel.vue'
 import MidiHub from 'components/MidiHub.vue'
 
+var interval = null
+
 export default {
   name: 'MainLayout',
   components: { ScenePanel, SourcePanel, FaderPanel, MidiHub },
@@ -89,6 +91,7 @@ export default {
       obsIsConnected: false,
       obsBtnLabel: 'Connect',
       obsAddressLabel: 'OBS Address',
+      obsStreamingStatus: null,
       obs: {},
       scenes: [],
       sources: [],
@@ -117,7 +120,7 @@ export default {
   },
   destroyed: function () {
     try {
-      this.obs.disconnect()
+      this.disconnectOBS()
     } catch (err) {
       // Do nothing
     }
@@ -164,8 +167,17 @@ export default {
         .catch(err => {
           this.onOBSError(err)
         })
+
+      clearInterval(interval)
+      interval = setInterval(this.obsInterval, 1000)
+    },
+    obsInterval () {
+      this.obs.send('GetStreamingStatus').then(data => {
+        this.obsStreamingStatus = data
+      })
     },
     disconnectOBS () {
+      clearInterval(interval)
       this.obs.disconnect()
       this.obsConnectionPending = false
     },
