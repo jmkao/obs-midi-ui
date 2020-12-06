@@ -2,6 +2,8 @@
 
 OBS Stream Festival Control UI with MIDI mappings for an RTMP muxing hub.
 
+<img src="https://i.imgur.com/MSn9Dhv.png" width="800">
+
 ## Documentation
 
 Consult the [wiki](https://github.com/jmkao/obs-midi-ui/wiki)
