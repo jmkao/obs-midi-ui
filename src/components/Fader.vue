@@ -8,11 +8,12 @@
           />
       </div>
       <div class="col fader">
-        <q-slider
-            v-model="value" color="red"
+        <q-slider class="overlay-group"
+            v-model="value" color="red" @change="faderUIChanged"
             :min="0" :max="127" :label-value="sevenbitToDB(value).toFixed(1)"
-            label dark
+            label-always dark
           />
+        <q-slider v-model="midiValue" class="overlay overlay-group" color="grey-9" :min="0" :max="127" dark readonly />
       </div>
     </div>
   </div>
@@ -22,9 +23,17 @@
 .fader {
   padding-left: 5px;
   padding-right: 5px;
+  position: relative;
+  z-index: 1;
 }
 .q-field {
   font-size: 10pt;
+}
+.overlay-group {
+  position: absolute;
+}
+.overlay {
+  z-index: -1;
 }
 </style>
 
@@ -39,8 +48,11 @@ export default {
   data () {
     return {
       value: 0,
+      midiValue: 0,
+      isMidiLocked: false,
       selectedSource: '',
-      obsUpdateInProgress: false
+      obsUpdateInProgress: false,
+      localUpdateInProgress: false
     }
   },
   created: function () {
@@ -88,22 +100,39 @@ export default {
         return
       }
       const dB = this.sevenbitToDB(value)
+      this.localUpdateInProgress = true
       this.obs.send('SetVolume', { source: this.selectedSource, volume: this.dbToMul(dB), useDecibel: false })
+    },
+    faderUIChanged () {
+      this.isMidiLocked = false
     },
     onMidiEvent (data) {
       // console.log(data)
-      this.value = data.value
+      this.midiValue = data.value
+
+      if (this.isMidiLocked) {
+        this.value = this.midiValue
+      } else if (Math.abs(this.midiValue - this.value) < 2) {
+        this.isMidiLocked = true
+        this.value = this.midiValue
+      }
     },
     obsVolumeChanged (data) {
       if (data.sourceName === this.selectedSource) {
+        if (this.localUpdateInProgress) {
+          this.localUpdateInProgress = false
+          return
+        }
+
         const mul = data.volume
         const db = this.mulToDB(mul)
         const value = this.dbToSevenbit(db)
 
-        console.log(`OBS volume for ${this.selectedSource} changed to ${mul}, ${db}, ${value}`)
+        // console.log(`OBS volume for ${this.selectedSource} changed to ${mul}, ${db}, ${value}`)
         if (value !== this.value) {
           this.obsUpdateInProgress = true
           this.value = value
+          this.isMidiLocked = false
         }
       }
     },
@@ -111,6 +140,8 @@ export default {
       if (this.selectedSource === '') {
         return
       }
+      this.isMidiLocked = false;
+
       (async () => {
         var data = await (this.obs.send('GetVolume', { source: this.selectedSource, useDecibel: false }))
         this.obsVolumeChanged({ sourceName: data.name, volume: data.volume })
