@@ -20,7 +20,7 @@
         </div>
       </q-toolbar>
       <div class="row flex-nowrap" style="background-color: black;">
-        <FaderPanel :obs="obs" :sources="sources" ref="faderPanel" />
+        <FaderPanel :obs="obs" :sources="sources" :obsIsConnected="obsIsConnected" ref="faderPanel" />
       </div>
       <div class="row">
         <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
@@ -287,6 +287,10 @@ export default {
       this.obs.on('MediaEnded', data => { this.notifySourceUpdate(data.sourceName) })
       this.obs.on('MediaPaused', data => { this.notifySourceUpdate(data.sourceName) })
       this.obs.on('MediaRestarted', data => { this.notifySourceUpdate(data.sourceName) })
+      this.obs.on('SourceVolumeChanged', data => {
+        // console.log(this.$refs.faderPanel)
+        this.$refs.faderPanel.obsVolumeChanged(data)
+      })
     },
     notifySourceUpdate (sourceName) {
       console.log('notifySourceUpdate to ' + sourceName)

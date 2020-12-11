@@ -24,7 +24,8 @@ export default {
   components: { Fader },
   props: {
     obs: Object,
-    sources: Array
+    sources: Array,
+    obsIsConnected: Boolean
   },
   data () {
     return {
@@ -40,6 +41,11 @@ export default {
     }
   },
   methods: {
+    obsVolumeChanged (data) {
+      this.$refs.faders.forEach(fader => {
+        fader.obsVolumeChanged(data)
+      })
+    },
     updateFaderValue (index, value) {
       if (index < 0 || index >= this.$refs.faders.length) {
         return
