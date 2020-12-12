@@ -52,7 +52,8 @@ export default {
       isMidiLocked: false,
       selectedSource: '',
       obsUpdateInProgress: false,
-      localUpdateInProgress: false
+      localUpdateInProgress: false,
+      localUpdateTimeout: null
     }
   },
   created: function () {
@@ -100,7 +101,11 @@ export default {
         return
       }
       const dB = this.sevenbitToDB(value)
+      if (this.localUpdateTimeout !== null) {
+        clearTimeout(this.localUpdateTimeout)
+      }
       this.localUpdateInProgress = true
+      this.localUpdateTimeout = setTimeout(() => { this.localUpdateInProgress = false }, 300)
       this.obs.send('SetVolume', { source: this.selectedSource, volume: this.dbToMul(dB), useDecibel: false })
     },
     faderUIChanged () {
@@ -113,6 +118,7 @@ export default {
       if (this.isMidiLocked) {
         this.value = this.midiValue
       } else if (Math.abs(this.midiValue - this.value) < 2) {
+        console.log('MIDI locked on')
         this.isMidiLocked = true
         this.value = this.midiValue
       }
@@ -120,7 +126,6 @@ export default {
     obsVolumeChanged (data) {
       if (data.sourceName === this.selectedSource) {
         if (this.localUpdateInProgress) {
-          this.localUpdateInProgress = false
           return
         }
 
@@ -128,11 +133,11 @@ export default {
         const db = this.mulToDB(mul)
         const value = this.dbToSevenbit(db)
 
-        // console.log(`OBS volume for ${this.selectedSource} changed to ${mul}, ${db}, ${value}`)
         if (value !== this.value) {
           this.obsUpdateInProgress = true
           this.value = value
           this.isMidiLocked = false
+          console.log(`OBS volume for ${this.selectedSource} changed to ${mul}, ${db}, ${value}`)
         }
       }
     },
