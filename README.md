@@ -14,5 +14,5 @@ Download the relevant Electron package from the [releases page](https://github.c
 
 Visit the [online SPA](https://aniclover.com/obs-html-control/) in your browser.
 
-Please read the [wiki](https://github.com/jmkao/obs-midi-ui/wiki) for the nuances between the difference versions.
+Please read the [wiki](https://github.com/jmkao/obs-midi-ui/wiki) for the nuances between the different versions.
 
