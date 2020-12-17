@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-auto fader">
         <q-select v-model="selectedSource" :options="sources" option-label="name" option-value="name"
-            @input="sourceChanged"
+            @input="sourceChanged" :bg-color="labelBgColor"
             map-options emit-value dark dense borderless hide-bottom-space
           />
       </div>
@@ -53,7 +53,8 @@ export default {
       selectedSource: '',
       obsUpdateInProgress: false,
       localUpdateInProgress: false,
-      localUpdateTimeout: null
+      localUpdateTimeout: null,
+      labelBgColor: 'none'
     }
   },
   created: function () {
@@ -141,11 +142,12 @@ export default {
         }
       }
     },
-    sourceChanged (newSource) {
+    sourceChanged () {
       if (this.selectedSource === '') {
         return
       }
-      this.isMidiLocked = false;
+      this.isMidiLocked = false
+      this.labelBgColor = 'none';
 
       (async () => {
         var data = await (this.obs.send('GetVolume', { source: this.selectedSource, useDecibel: false }))
