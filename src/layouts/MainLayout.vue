@@ -24,12 +24,12 @@
       </div>
       <div class="row">
         <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
-        <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
+        <q-btn color="grey" stack icon="linked_camera" class="col-auto mini" label="Active" @click="screenshot('active')"/>
         <q-btn color="red" class="col" label="Transition" @click="transition()" />
         <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
         <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
         <q-btn color="red" class="col" label="Transition" @click="transition()" />
-        <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
+        <q-btn color="grey" stack icon="linked_camera" class="col-auto mini" label="Active" @click="screenshot('active')" />
         <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
       </div>
     </q-header>
@@ -117,6 +117,7 @@ export default {
     }
     this.$root.$on('transition', this.transition)
     this.$root.$on('timetable', this.timetable)
+    this.$root.$on('screenshot', this.screenshot)
   },
   destroyed: function () {
     try {
@@ -126,6 +127,7 @@ export default {
     }
     this.$root.$off('transition')
     this.$root.$off('timetable')
+    this.$root.$off('screenshot')
   },
   methods: {
     updateFader (index, value) {
@@ -249,6 +251,21 @@ export default {
         }
       }
       return -1
+    },
+    screenshot (scene) {
+      if (!this.obsIsConnected) {
+        return
+      }
+
+      if (typeof scene === 'undefined' || scene === 'active') {
+        this.obs.send('TriggerHotkeyByName', { hotkeyName: 'OBSBasic.Screenshot' })
+        console.log('Screenshot Active')
+      } else {
+        if (this.status.previewIndex >= 0) {
+          this.obs.send('TriggerHotkeyByName', { hotkeyName: 'OBSBasic.SelectedSourceScreenshot' })
+          console.log('Screenshot Preview')
+        }
+      }
     },
     transition () {
       if (!this.obsIsConnected) {

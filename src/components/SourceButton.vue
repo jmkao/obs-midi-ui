@@ -51,7 +51,11 @@ export default {
     color: function () {
       let color = 'white'
       if (this.mediaState === 'playing') {
-        color = 'red'
+        if (this.settings.is_local_file) {
+          color = 'green'
+        } else {
+          color = 'red'
+        }
       } else if (this.mediaState === 'paused') {
         color = 'yellow'
       }
