@@ -16,6 +16,19 @@
 }
 .quarter {
   width: 25% !important;
+
+}
+.quarter:nth-child(16n+17) {
+  padding-top: 24px;
+}
+.quarter:nth-child(16n+18) {
+  padding-top: 24px;
+}
+.quarter:nth-child(16n+19) {
+  padding-top: 24px;
+}
+.quarter:nth-child(16n+20) {
+  padding-top: 24px;
 }
 
 .full-width {
