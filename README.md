@@ -16,3 +16,5 @@ Visit the [online SPA](https://aniclover.com/obs-html-control/) in your browser.
 
 Please read the [wiki](https://github.com/jmkao/obs-midi-ui/wiki) for the nuances between the different versions.
 
+## Build
+```quasar build -m electron```

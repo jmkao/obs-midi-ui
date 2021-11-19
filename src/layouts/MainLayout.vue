@@ -278,9 +278,11 @@ export default {
         return
       }
       if (direction === 'retract') {
-        this.obs.send('TriggerHotkeyByName', { hotkeyName: 'ROTATE_ccw' })
+        // this.obs.send('TriggerHotkeyByName', { hotkeyName: 'ROTATE_ccw' })
+        this.obs.send('TriggerHotkeyBySequence', { keyId: 'OBS_KEY_NUMASTERISK' })
       } else {
-        this.obs.send('TriggerHotkeyByName', { hotkeyName: 'ROTATE_cw' })
+        // this.obs.send('TriggerHotkeyByName', { hotkeyName: 'ROTATE_cw' })
+        this.obs.send('TriggerHotkeyBySequence', { keyId: 'OBS_KEY_NUMMINUS' })
       }
     },
     initOBS () {
