@@ -58,10 +58,10 @@ export default {
     }
   },
   created: function () {
-    this.$root.$on('midiFader' + this.index, this.onMidiEvent)
+    this.$global.$on('midiFader' + this.index, this.onMidiEvent)
   },
-  destroyed: function () {
-    this.$root.$off('midiFader' + this.index)
+  unmounted: function () {
+    this.$global.$off('midiFader' + this.index)
   },
   watch: {
     value: function (newValue, oldValue) {

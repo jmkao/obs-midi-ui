@@ -112,22 +112,23 @@ export default {
     }
   },
   created: function () {
-    if (typeof window.OBSWebSocket === 'undefined') {
-      window.OBSWebSocket = require('obs-websocket-js')
-    }
-    this.$root.$on('transition', this.transition)
-    this.$root.$on('timetable', this.timetable)
-    this.$root.$on('screenshot', this.screenshot)
+    // if (typeof window.OBSWebSocket === 'undefined') {
+    //   window.OBSWebSocket = require('obs-websocket-js')
+    // }
+    // window.OBSWebSocket = window.obs.websocket
+    this.$global.$on('transition', this.transition)
+    this.$global.$on('timetable', this.timetable)
+    this.$global.$on('screenshot', this.screenshot)
   },
-  destroyed: function () {
+  unmounted: function () {
     try {
       this.disconnectOBS()
     } catch (err) {
       // Do nothing
     }
-    this.$root.$off('transition')
-    this.$root.$off('timetable')
-    this.$root.$off('screenshot')
+    this.$global.$off('transition')
+    this.$global.$off('timetable')
+    this.$global.$off('screenshot')
   },
   methods: {
     updateFader (index, value) {
@@ -195,6 +196,9 @@ export default {
 
         this.obs.send('GetPreviewScene').then(data => {
           this.status.previewIndex = this.findSceneIndex(data.name)
+        })
+        .catch( err => {
+          console.log(err)
         })
 
         this.obs.send('GetSourcesList').then(data => {
@@ -292,7 +296,10 @@ export default {
         // Do nothing
       }
 
-      this.obs = new window.OBSWebSocket()
+      // this.obs = window.obswebsocket.make()
+      const OBSWebSocket = require('obs-websocket-js')
+      this.obs = new OBSWebSocket()
+      // this.obs = new window.OBSWebSocket()
 
       this.obs.on('error', err => {
         this.onOBSError(err)

@@ -1,4 +1,14 @@
+
+const { contextBridge } = require('electron')
+
 const OBSWebSocket = require('obs-websocket-js')
+
+// contextBridge.exposeInMainWorld(
+//   'obswebsocket',
+//   {
+//     make: () => { return new OBSWebSocket() }
+//   }
+// )
 
 window.OBSWebSocket = OBSWebSocket
 

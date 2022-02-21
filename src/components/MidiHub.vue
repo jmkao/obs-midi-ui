@@ -7,7 +7,13 @@
       />
     </div>
     <div class="col-1">
-      <q-btn icon="edit" size="m" color="orange" padding="none" @click="showJsInputTextDialog = true" :disable="midiSelectDisabled" />
+      <!-- <q-btn icon="edit" size="m" color="orange" padding="none" @click="showJsInputTextDialog = true" :disable="midiSelectDisabled" /> -->
+      <q-file v-model="midiInputJsFile" accept=".js" @update:model-value="updateInputJsFile"
+        dense hide-bottom-space borderless :input-style="{ display: 'none' }">
+        <template v-slot:prepend>
+          <q-icon name="edit" size="m" color="orange" padding="none" class="cursor-pointer" @click.stop />
+        </template>
+      </q-file>
     </div>
     <div class="col-2">
       <q-select v-model="midiOutputName" :options="midiOutputsAvailable" :disable="midiSelectDisabled"
@@ -16,46 +22,17 @@
       />
     </div>
     <div class="col-1">
-      <q-btn icon="edit" size="m" color="cyan" padding="none" @click="showJsOutputTextDialog = true" :disable="midiSelectDisabled" />
+      <!-- <q-btn icon="edit" size="m" color="cyan" padding="none" @click="showJsOutputTextDialog = true" :disable="midiSelectDisabled" /> -->
+      <q-file v-model="midiOutputJsFile" accept=".js" @update:model-value="updateOutputJsFile"
+        dense hide-bottom-space borderless :input-style="{ display: 'none' }">
+        <template v-slot:prepend>
+          <q-icon name="edit" size="m" color="orange" padding="none" class="cursor-pointer" @click.stop />
+        </template>
+      </q-file>
     </div>
     <div class="col-auto">
       <q-btn :color="midiBtnColor" :label="midiBtnLabel" @click="onMidiBtn"/>
     </div>
-    <q-dialog
-      v-model="showJsInputTextDialog" @before-hide="parseMidiJsHandler"
-      full-width full-height >
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">MIDI Input Dispatcher</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none editor-height" >
-          <jsEditor v-model="midiInputJsText" @init="editorInit" lang="javascript" theme="chrome" width="100%" />
-        </q-card-section>
-
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn flat label="OK" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog
-      v-model="showJsOutputTextDialog" @before-hide="parseMidiJsHandler"
-      full-width full-height >
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">MIDI Output Dispatcher</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none editor-height" >
-          <jsEditor v-model="midiOutputJsText" @init="editorInit" lang="javascript" theme="chrome" width="100%" />
-        </q-card-section>
-
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn flat label="OK" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
   </div>
 </template>
 
@@ -78,7 +55,6 @@
 export default {
   name: 'MidiInputHub',
   components: {
-    jsEditor: require('vue2-ace-editor')
   },
   props: {
     obsIsConnected: Boolean,
@@ -93,19 +69,19 @@ export default {
       midiBtnLabel: 'Attach MIDI',
       midiInputsAvailable: null,
       midiInputName: '',
-      showJsInputTextDialog: false,
+      midiInputJsFile: null,
       midiInputJsText: null,
       midiInputJsHandler: null,
       midiOutputsAvailable: null,
       midiOutputName: '',
-      showJsOutputTextDialog: false,
+      midiOutputJsFile: null,
       midiOutputJsText: null,
       midiOutputJsHandler: null,
       midiOutput: null
     }
   },
   created: function () {
-    this.$root.$on('midiout', this.onMidiOutEvent)
+    this.$global.$on('midiout', this.onMidiOutEvent)
 
     this.midi = require('webmidi')
     // this.initMidi()
@@ -136,8 +112,8 @@ console.log(eventData);
 
     this.parseMidiJsHandler()
   },
-  destroyed: function () {
-    this.$root.$off('midiout')
+  unmounted: function () {
+    this.$global.$off('midiout')
     this.midiInput.removeListener()
     this.midi.disable()
   },
@@ -158,10 +134,15 @@ console.log(eventData);
     }
   },
   methods: {
-    editorInit () {
-      require('brace/ext/language_tools')
-      require('brace/mode/javascript')
-      require('brace/theme/chrome')
+    async updateInputJsFile(file) {
+      console.log("New midi input JS file: "+file.name)
+      this.midiInputJsText = await file.text();
+      this.parseMidiJsHandler();
+    },
+    async updateOutputJsFile(file) {
+      console.log("New midi output JS file: "+file.name)
+      this.midiOutputJsText = await file.text();
+      this.parseMidiJsHandler();
     },
     parseMidiJsHandler () {
       this.$q.localStorage.set('midiInputJsText', this.midiInputJsText)
@@ -245,7 +226,7 @@ console.log(eventData);
 
         const [eventName, eventData] = this.midiInputJsHandler({ channel, note })
         if (eventName) {
-          this.$root.$emit(eventName, eventData)
+          this.$global.$emit(eventName, eventData)
         }
       })
 
@@ -265,7 +246,7 @@ console.log(eventData);
             // console.log(this.$parent)
             // this.$parent.updateFader(eventData.index, eventData.value)
           } else {
-            this.$root.$emit(eventName, eventData)
+            this.$global.$emit(eventName, eventData)
           }
         }
 
@@ -316,7 +297,7 @@ console.log(eventData);
           return true
         }
       }
-      this.$root.$emit('midiout', { name: 'init' })
+      this.$global.$emit('midiout', { name: 'init' })
 
       return true
     }

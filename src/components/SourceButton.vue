@@ -55,10 +55,10 @@ export default {
     // this.$set(this.status, 'previewIndex', -1)
     this.loadSourceSettings(this.source)
     this.loadMediaState()
-    this.$root.$on('source' + this.index, this.onClick)
+    this.$global.$on('source' + this.index, this.onClick)
   },
-  destroyed: function () {
-    this.$root.$off('source' + this.index)
+  unmounted: function () {
+    this.$global.$off('source' + this.index)
   },
   computed: {
     color: function () {
@@ -72,7 +72,7 @@ export default {
       } else if (this.mediaState === 'paused') {
         color = 'yellow'
       }
-      this.$root.$emit('midiout', { name: 'source', index: this.index, color })
+      this.$global.$emit('midiout', { name: 'source', index: this.index, color })
       return color
     },
     icon: function () {
@@ -91,6 +91,7 @@ export default {
     source: {
       deep: true,
       handler () {
+        // eslint-disable-next-line vue/no-mutating-props
         this.source.needsUpdate = false
         // this.loadSourceSettings(this.source)
         this.loadMediaState()

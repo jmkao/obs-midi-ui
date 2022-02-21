@@ -37,7 +37,7 @@ export default {
   created: function () {
     // this.$set(this.status, 'currentIndex', -1)
     // this.$set(this.status, 'previewIndex', -1)
-    this.$root.$on('autoUpdateFaders', this.autoUpdateFaders)
+    this.$global.$on('autoUpdateFaders', this.autoUpdateFaders)
   },
   computed: {
     color: function () {

@@ -41,10 +41,10 @@ export default {
     // status: Object
   },
   created: function () {
-    this.$root.$on('scene' + this.index, this.switchToScene)
+    this.$global.$on('scene' + this.index, this.switchToScene)
   },
-  destroyed: function () {
-    this.$root.$off('scene' + this.index)
+  unmounted: function () {
+    this.$global.$off('scene' + this.index)
   },
   computed: {
     color: function () {
@@ -55,7 +55,7 @@ export default {
         color = 'yellow'
       }
       console.log(`scene${this.index} color changed to ${color}`)
-      this.$root.$emit('midiout', { name: 'scene', index: this.index, color })
+      this.$global.$emit('midiout', { name: 'scene', index: this.index, color })
       return color
     }
   },

@@ -19,7 +19,7 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
-
+      'global-event-bus'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -82,7 +82,7 @@ module.exports = function (/* ctx */) {
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
       iconSet: 'material-icons', // Quasar icon set
-      lang: 'en-us', // Quasar language pack
+      lang: 'en-US', // Quasar language pack
       config: {},
 
       // Possible values for "importStrategy":
@@ -191,7 +191,27 @@ module.exports = function (/* ctx */) {
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
-      nodeIntegration: true,
+      // nodeIntegration: true,
+
+      // was renamed from chainWebpack()
+      // chainWebpackMain (chain) {
+      //   // example for its content (adds linting)
+      //   chain.plugin('eslint-webpack-plugin')
+      //     .use(ESLintPlugin, [{ extensions: ['js'] }])
+      // },
+
+      // was renamed from extendWebpack()
+      extendWebpackMain (cfg) { /* ... */ },
+
+      // New!
+      // chainWebpackPreload (chain) {
+      //   // example (adds linting)
+      //   chain.plugin('eslint-webpack-plugin')
+      //     .use(ESLintPlugin, [{ extensions: ['js'] }])
+      // },
+
+      // New!
+      extendWebpackPreload (cfg) { /* ... */ },
 
       extendWebpack (/* cfg */) {
         // do something with Electron main process Webpack cfg
