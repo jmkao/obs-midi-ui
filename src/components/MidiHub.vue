@@ -174,6 +174,10 @@ console.log(eventData);
       this.midi.disable()
       this.midiInputsAvailable = []
       this.midiOutputsAvailable = []
+
+      let savedMidiInputName = this.$q.localStorage.getItem('lastMidiInputName')
+      let savedMidiOutputName = this.$q.localStorage.getItem('lastMidiOutputName')
+
       this.midi.enable(error => {
         if (error) {
           console.log('Webmidi Error:' + error)
@@ -181,10 +185,16 @@ console.log(eventData);
         this.midi.inputs.map(input => {
           this.midiInputsAvailable.push(input.name)
           console.log(`'${input.id} / '${input.name}`)
+          if (input.name === savedMidiInputName) {
+            this.midiInputName = savedMidiInputName
+          }
         })
         this.midi.outputs.map(output => {
           this.midiOutputsAvailable.push(output.name)
           console.log(`'${output.id} / '${output.name}`)
+          if (output.name === savedMidiOutputName) {
+            this.midiOutputName = savedMidiOutputName
+          }
         })
 
         if (typeof update !== 'undefined') {
@@ -215,6 +225,8 @@ console.log(eventData);
         this.onMidiBtn()
         return false
       }
+
+      this.$q.localStorage.set('lastMidiInputName', this.midiInputName)
 
       this.midiInput.addListener('noteon', 'all', data => {
         const channel = data.channel
@@ -249,42 +261,6 @@ console.log(eventData);
             this.$global.$emit(eventName, eventData)
           }
         }
-
-        // Controls: 11 12 13 14
-        // var i = FADER_CCS.indexOf(control)
-        // if (i > -1) {
-        //   this.$root.$emit('midiFader' + i, {
-        //     midi: this.midi,
-        //     channel: channel,
-        //     control: control,
-        //     value: value
-        //   })
-        //   return
-        // }
-
-        // // Buttons only test if value = 127
-        // if (value === 127) {
-        //   i = TT_ADV_CCS.indexOf(control)
-        //   if (i > -1) {
-        //     this.$root.$emit('timetable', 'advance')
-        //   }
-
-        //   i = TT_RET_CCS.indexOf(control)
-        //   if (i > -1) {
-        //     this.$root.$emit('timetable', 'retract')
-        //   }
-
-        //   i = TRANSITION_CCS.indexOf(control)
-        //   if (i > -1) {
-        //     this.$root.$emit('transition')
-        //   }
-
-        //   if (control >= SCENE_CC_ZERO && control < (SCENE_CC_ZERO + this.scenes.length)) {
-        //     const event = 'scene' + (control - SCENE_CC_ZERO)
-        //     // console.log('Sending event ' + event)
-        //     this.$root.$emit(event)
-        //   }
-        // }
       })
 
       console.log(this.midiOutputName)
@@ -296,6 +272,8 @@ console.log(eventData);
           console.log(`MIDI Output named ${this.midiOutputName} could not be opened`)
           return true
         }
+
+        this.$q.localStorage.set('lastMidiOutputName', this.midiOutputName)
       }
       this.$global.$emit('midiout', { name: 'init' })
 

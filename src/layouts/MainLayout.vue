@@ -25,12 +25,21 @@
       <div class="row">
         <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
         <q-btn color="grey" stack icon="linked_camera" class="col-auto mini" label="Active" @click="screenshot('active')"/>
-        <q-btn color="red" class="col" label="Transition" @click="transition()" />
+        <q-btn color="red" class="col" label="Transition" @click="transition()">
+        </q-btn>
         <q-btn color="grey" stack icon="navigate_before" class="col-auto mini" label="Timetable" @click="timetable('retract')" />
         <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
         <q-btn color="red" class="col" label="Transition" @click="transition()" />
         <q-btn color="grey" stack icon="linked_camera" class="col-auto mini" label="Active" @click="screenshot('active')" />
         <q-btn color="grey" stack icon="navigate_next" class="col-auto mini" label="Timetable" @click="timetable('advance')"/>
+          <q-menu touch-position context-menu>
+            <div class="row q-pa-md column">
+              <q-toggle v-model="linkTransitionTTAdvance" label="Link Transition to Timetable Advance"
+                @update:model-value="(value) => $q.localStorage.set('linkTransitionTTAdvance', value) "/>
+              <q-toggle v-model="linkTransitionTTRetract" label="Link Transition to Timetable Retract"
+                @update:model-value="(value) => $q.localStorage.set('linkTransitionTTRetract', value) "/>
+            </div>
+          </q-menu>
       </div>
     </q-header>
 
@@ -99,7 +108,9 @@ export default {
       status: {
         previewIndex: -1,
         currentIndex: -1
-      }
+      },
+      linkTransitionTTAdvance: false,
+      linkTransitionTTRetract: false
     }
   },
   computed: {
@@ -111,14 +122,22 @@ export default {
       }
     }
   },
-  created: function () {
-    // if (typeof window.OBSWebSocket === 'undefined') {
-    //   window.OBSWebSocket = require('obs-websocket-js')
-    // }
-    // window.OBSWebSocket = window.obs.websocket
+  mounted: function () {
     this.$global.$on('transition', this.transition)
     this.$global.$on('timetable', this.timetable)
     this.$global.$on('screenshot', this.screenshot)
+
+    if (this.$q.localStorage.has('linkTransitionTTAdvance')) {
+      this.linkTransitionTTAdvance = this.$q.localStorage.getItem('linkTransitionTTAdvance')
+    }
+
+    if (this.$q.localStorage.has('linkTransitionTTRetract')) {
+      this.linkTransitionTTRetract = this.$q.localStorage.getItem('linkTransitionTTRetract')
+    }
+
+    if (this.$q.localStorage.has('lastObsAddress')) {
+      this.obsAddress = this.$q.localStorage.getItem('lastObsAddress')
+    }
   },
   unmounted: function () {
     try {
@@ -188,6 +207,7 @@ export default {
       this.obsBtnLabel = 'Disconnect'
       this.obsConnectionPending = false
       this.obsIsConnected = true
+      this.$q.localStorage.set('lastObsAddress', this.obsAddress)
       this.obs.send('GetSceneList').then(data => {
         console.log('GetSceneList retrieved # scenes: ' + String(data.scenes.length))
         this.scenes = data.scenes
@@ -276,6 +296,12 @@ export default {
         return
       }
       this.obs.send('TransitionToProgram')
+      if (this.linkTransitionTTAdvance) {
+        this.timetable('advance')
+      }
+      if (this.linkTransitionTTRetract) {
+        this.timetable('retract')
+      }
     },
     timetable (direction) {
       if (!this.obsIsConnected) {
