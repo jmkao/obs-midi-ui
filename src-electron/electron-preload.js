@@ -1,7 +1,7 @@
 
-const { contextBridge } = require('electron')
+// const { contextBridge } = require('electron')
 
-const OBSWebSocket = require('obs-websocket-js')
+// const OBSWebSocket = require('obs-websocket-js')
 
 // contextBridge.exposeInMainWorld(
 //   'obswebsocket',
@@ -10,7 +10,7 @@ const OBSWebSocket = require('obs-websocket-js')
 //   }
 // )
 
-window.OBSWebSocket = OBSWebSocket
+// window.OBSWebSocket = OBSWebSocket
 
 // const obs = new OBSWebSocket()
 
